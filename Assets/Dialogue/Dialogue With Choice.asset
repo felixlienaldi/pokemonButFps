@@ -15,6 +15,7 @@ MonoBehaviour:
   dialogue:
     sentences:
     - 'Please Choose Pokemon :'
+    - So You Choose {pokemon}.
     choice:
     - choiceName: Charizard
       onPicked:
