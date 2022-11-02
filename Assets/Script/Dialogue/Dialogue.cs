@@ -32,7 +32,7 @@ public class Dialogue {
         choosenChoiceIndex = choiceIndex;
         choiceChoosen = true;
         choice[choiceIndex]?.onPicked?.Invoke();
-        Dialogue_Manager.m_Instance.ResetChoice();
+        Dialogue_Manager.instance.ResetChoice();
     }
 
     public string FilterWords(string sentence) {

@@ -10,14 +10,13 @@ using UnityEngine.Events;
 public class Dialogue_Manager : MonoBehaviour{
     public const string CHOICE_NAME = "{pokemon}";
 
-    public static Dialogue_Manager m_Instance;
+    public static Dialogue_Manager instance;
 
     [Header("Config")]
     [SerializeField] private float textSpeed;
     
     [Header("Dialogue")]
     [SerializeField] private GameObject dialogueBoard;
-    public List<Dialogue_Scriptable> originalDialogues;
     private List<Dialogue_Scriptable> dialogues = new List<Dialogue_Scriptable>();
 
     public bool isChoice;
@@ -55,11 +54,11 @@ public class Dialogue_Manager : MonoBehaviour{
     //				MONOBEHAVIOUR METHOD 
     //=====================================================================
     void Awake(){
-        m_Instance = this;
+        instance = this;
     }
 
     void Start() {
-        Init();
+        DialogueDatabase.instance.SelectDialogue(0);
     }
 
     void Update(){
@@ -72,11 +71,13 @@ public class Dialogue_Manager : MonoBehaviour{
         }
     }
 
-    private void Init() {
-        for (int i = 0; i <originalDialogues.Count;i++) {
-            dialogues.Add(Instantiate(originalDialogues[i]));
+    public void SetDialogue(List<Dialogue_Scriptable> listDialogue) {
+        for (int i = 0; i < listDialogue.Count;i++) {
+            dialogues.Add(Instantiate(listDialogue[i]));
         }
     }
+
+
     public void TriggerDialogue() {
         NarrationOn(dialogues[currentIndex].dialogue);
         isDialogue = true;
