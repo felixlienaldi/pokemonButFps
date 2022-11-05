@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using UnityEngine.Events;
+using static DialogueDatabase;
 
 public class Dialogue_Manager : MonoBehaviour{
     public const string CHOICE_NAME = "{pokemon}";
@@ -17,7 +18,7 @@ public class Dialogue_Manager : MonoBehaviour{
     
     [Header("Dialogue")]
     [SerializeField] private GameObject dialogueBoard;
-    private List<Dialogue_Scriptable> dialogues = new List<Dialogue_Scriptable>();
+    public List<Dialogue_Scriptable> dialogues = new List<Dialogue_Scriptable>();
 
     public bool isChoice;
     private Queue<string> sentences = new Queue<string>();
@@ -46,9 +47,10 @@ public class Dialogue_Manager : MonoBehaviour{
     int counter;
     int currentIndex;
     bool isDialogue;
+    [HideInInspector] public bool isEnemy;
 
     private Coroutine tempCoroutine;
-
+    public List<Action<int>> actions = new List<Action<int>>();
     private Dialogue_Scriptable activeDialogue => dialogues[currentIndex];
     //=====================================================================
     //				MONOBEHAVIOUR METHOD 
@@ -58,33 +60,46 @@ public class Dialogue_Manager : MonoBehaviour{
     }
 
     void Start() {
-        DialogueDatabase.instance.SelectDialogue(0);
+        //DialogueDatabase.instance.SelectDialogue(0);
     }
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.Space) && dialogues != null) {
-            if (!isDialogue) {
-                TriggerDialogue();
-            } else {
-                Next();
-            }
+        if (Input.GetKeyDown(KeyCode.S) && dialogues != null && !isChoice) {
+            //if (!isDialogue) {
+            //    TriggerDialogue();
+            //} else {
+            Debug.Log(isChoice);
+            Next();
+            //}
         }
     }
 
+
     public void SetDialogue(List<Dialogue_Scriptable> listDialogue) {
+        Debug.Log("Ini Dipanggil");
         for (int i = 0; i < listDialogue.Count;i++) {
+            Debug.Log(i);
             dialogues.Add(Instantiate(listDialogue[i]));
         }
     }
 
 
     public void TriggerDialogue() {
+        isEnemy = false;
         NarrationOn(dialogues[currentIndex].dialogue);
         isDialogue = true;
     }
 
+    public void TriggerOneTimeDialogue(Dialogue dialogue) {
+        Dialogue_Scriptable newScriptable = ScriptableObject.CreateInstance<Dialogue_Scriptable>();
+        newScriptable.dialogue = dialogue;
+        dialogues.Add(newScriptable);
+        NarrationOn(dialogue);
+        isDialogue = true;
+    }
+
     public void Next() {
-        if(dialogueBoard.activeSelf) DisplayNextSentence();
+        if(dialogueBoard.activeSelf && !isChoice) DisplayNextSentence();
     }
 
     public void StartDialogue(Dialogue dialogue) {
@@ -131,7 +146,7 @@ public class Dialogue_Manager : MonoBehaviour{
         
     }
 
-    public IEnumerator ShowAllWords() {
+    public IEnumerator ShowAllWords(List<Action<int>> actions = null) {
         dialogueText.maxVisibleCharacters = totalVisibleCharacter;
         TriggerChoice();
         yield return new WaitForEndOfFrame();
@@ -160,11 +175,10 @@ public class Dialogue_Manager : MonoBehaviour{
             yield return new WaitForSeconds(textSpeed);
         }
 
-        TriggerChoice();
 
         yield return new WaitForSeconds(0.5f);
 
-       
+        TriggerChoice();
     }
 
     public void NarrationOn(Dialogue p_Dialogue) {
@@ -181,17 +195,26 @@ public class Dialogue_Manager : MonoBehaviour{
             currentIndex = 0;
             isDialogue = false;
             dialogues.Clear();
+            Reset();
             onDialogueEnd?.Invoke();
+            onDialogueEnd.RemoveAllListeners();
         } else {
             TriggerDialogue();
         }
     }
 
     public void TriggerChoice() {
-        if (activeDialogue.dialogue.dialogueType == Dialogue.DialogueType.TextOnly || activeDialogue.dialogue.choiceChoosen) return;
-        isChoice = true;
-        choiceBoard.SetActive(true);
-        SpawnChoice();
+        Debug.Log("Jalan sebelum disaster");
+        if (isEnemy) {
+            StartCoroutine(SpawnEnemyChoice());
+        } else {
+            if (activeDialogue.dialogue.dialogueType == Dialogue.DialogueType.TextOnly || activeDialogue.dialogue.choiceChoosen) return;
+            isChoice = true;
+            choiceBoard.SetActive(true);
+            SpawnChoice();
+        }
+        Debug.Log(currentIndex);
+        Debug.Log(activeDialogue);
     }
 
     private void SpawnChoice() {
@@ -207,9 +230,45 @@ public class Dialogue_Manager : MonoBehaviour{
             spawnedChoice.transform.SetParent(choiceTransformParent);
             spawnedChoice.transform.localScale = Vector3.one;
             spawnedChoice.dialogue = activeDialogue.dialogue;
+            //if (actions != null) {
+            //    spawnedChoice.dialogue.choice[i].onPicked.AddListener(index => actions[0]?.Invoke(index));
+            //}
             spawnedChoice.choiceIndex = i;
+            if(spawnedChoice.dialogue.userDialogue.name == "") {
+                spawnedChoice.dialogue.userDialogue.name = activeDialogue.dialogue.userDialogue.name;
+            }
             spawnedChoice.gameObject.SetActive(true);
         }
+    }
+
+    private IEnumerator SpawnEnemyChoice() {
+        for (int i = 0; i < activeDialogue.dialogue.choice.Length; i++) {
+            index = GetActiveChoice();
+
+            if (index < 0) {
+                choices.Add(Instantiate(choicePrefab));
+                index = choices.Count - 1;
+            }
+
+            spawnedChoice = choices[index];
+            spawnedChoice.transform.SetParent(choiceTransformParent);
+            spawnedChoice.transform.localScale = Vector3.one;
+            spawnedChoice.dialogue = activeDialogue.dialogue;
+            //if (actions != null) {
+            //    spawnedChoice.dialogue.choice[i].onPicked.AddListener(index => actions[0]?.Invoke(index));
+            //}
+
+            spawnedChoice.choiceIndex = i;
+            if (spawnedChoice.dialogue.userDialogue.name == "") {
+                spawnedChoice.dialogue.userDialogue.name = activeDialogue.dialogue.userDialogue.name;
+            }
+
+            spawnedChoice.gameObject.SetActive(false);
+        }
+
+        isChoice = true;
+        yield return new WaitForSeconds(1f);
+        spawnedChoice.dialogue.Select(0);
     }
 
     private int GetActiveChoice() {
@@ -221,13 +280,30 @@ public class Dialogue_Manager : MonoBehaviour{
     }
     
     public void ResetChoice() {
-        for(int i = 0; i < choices.Count; i++) {
-            if (choices[i].gameObject.activeSelf) choices[i].gameObject.SetActive(false);
-        }
-
-        isChoice = false;
-        choiceBoard.SetActive(false);
-        Next();
+        DoReset();
     }
 
+    public void DoReset() {
+        for (int i = 0; i < choices.Count; i++) {
+            for (int j = 0; j < choices[i].dialogue.choice.Length; j++) {
+                choices[i].dialogue.choice[j].onPicked.RemoveAllListeners();
+            }
+
+            if (choices[i].gameObject.activeSelf) choices[i].gameObject.SetActive(false);
+        }
+        isEnemy = false;
+        isChoice = false;
+        choiceBoard.SetActive(false);
+    }
+
+    public void Reset() {
+        for (int i = 0; i < choices.Count; i++) {
+            for (int j = 0; j < choices[i].dialogue.choice.Length; j++) {
+                choices[i].dialogue.choice[j].onPicked.RemoveAllListeners();
+            }
+            actions.Clear();
+            choices[i].dialogue.choiceChoosen = false;
+            if (choices[i].gameObject.activeSelf) choices[i].gameObject.SetActive(false);
+        }
+    }
 }

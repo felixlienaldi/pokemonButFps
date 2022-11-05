@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0eced8b509c85a4db3c9225d17abc29, type: 3}
-  m_Name: User 1
+  m_Script: {fileID: 11500000, guid: 573c3619bba4a1243a25ecfd68befa74, type: 3}
+  m_Name: Sreech
   m_EditorClassIdentifier: 
-  name: Prof. Oak
-  userPotrait: {fileID: 0}
+  name: Sreech
+  limit: 40
+  value: 5
+  moveType: 1
+  buffType: 1

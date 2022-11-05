@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cef3ff488b28074bb6990c5588d3d04, type: 3}
+  m_Name: Charizard
+  m_EditorClassIdentifier: 
+  health: 100
+  attack: 10
+  defense: 5
+  moveSet:
+  - {fileID: 11400000, guid: a8eda3160e1196d48a55155101ba17cc, type: 2}
+  - {fileID: 11400000, guid: 5bafde122c2ee4f4a838466eb2dff791, type: 2}

@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class Trainer : MonoBehaviour
 {
-    public PokemonData pokemon;
+    public Pokemon pokemon;
 
     public virtual void DoMove(int index) {
-        //TODO: Bikin script AI ngapain Movenya
-        Battle.instance.DoMove(pokemon.moveSet[index]);
+        Battle.instance.activeMove = pokemon.data.moveSet[index];
+        Battle.instance.DoMove(pokemon.data.moveSet[index]);
     }
-
-
 
 }
