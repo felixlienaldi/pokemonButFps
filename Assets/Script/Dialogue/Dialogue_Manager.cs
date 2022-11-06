@@ -47,6 +47,7 @@ public class Dialogue_Manager : MonoBehaviour{
     int counter;
     int currentIndex;
     bool isDialogue;
+    bool isOneTimeDialogue;
     [HideInInspector] public bool isEnemy;
 
     private Coroutine tempCoroutine;
@@ -60,25 +61,26 @@ public class Dialogue_Manager : MonoBehaviour{
     }
 
     void Start() {
-        //DialogueDatabase.instance.SelectDialogue(0);
+        
     }
 
     void Update(){
         if (Input.GetKeyDown(KeyCode.S) && dialogues != null && !isChoice) {
-            //if (!isDialogue) {
-            //    TriggerDialogue();
-            //} else {
-            Debug.Log(isChoice);
+            
             Next();
-            //}
+        }
+
+        if (Input.GetKeyDown(KeyCode.A) && dialogues != null && !isChoice) {
+            if (!isDialogue) {
+                DialogueDatabase.instance.SelectDialogue(0);
+                TriggerDialogue();
+            }
         }
     }
 
 
     public void SetDialogue(List<Dialogue_Scriptable> listDialogue) {
-        Debug.Log("Ini Dipanggil");
         for (int i = 0; i < listDialogue.Count;i++) {
-            Debug.Log(i);
             dialogues.Add(Instantiate(listDialogue[i]));
         }
     }
@@ -95,6 +97,7 @@ public class Dialogue_Manager : MonoBehaviour{
         newScriptable.dialogue = dialogue;
         dialogues.Add(newScriptable);
         NarrationOn(dialogue);
+        isOneTimeDialogue = true;
         isDialogue = true;
     }
 
@@ -204,7 +207,6 @@ public class Dialogue_Manager : MonoBehaviour{
     }
 
     public void TriggerChoice() {
-        Debug.Log("Jalan sebelum disaster");
         if (isEnemy) {
             StartCoroutine(SpawnEnemyChoice());
         } else {
@@ -213,8 +215,6 @@ public class Dialogue_Manager : MonoBehaviour{
             choiceBoard.SetActive(true);
             SpawnChoice();
         }
-        Debug.Log(currentIndex);
-        Debug.Log(activeDialogue);
     }
 
     private void SpawnChoice() {
@@ -294,6 +294,9 @@ public class Dialogue_Manager : MonoBehaviour{
         isEnemy = false;
         isChoice = false;
         choiceBoard.SetActive(false);
+        if (!isOneTimeDialogue) {
+            Next();
+        }
     }
 
     public void Reset() {
@@ -305,5 +308,6 @@ public class Dialogue_Manager : MonoBehaviour{
             choices[i].dialogue.choiceChoosen = false;
             if (choices[i].gameObject.activeSelf) choices[i].gameObject.SetActive(false);
         }
+        isOneTimeDialogue = false;
     }
 }

@@ -19,7 +19,6 @@ public class DialogueDatabase : MonoBehaviour
     }
 
     public List<Dialogue_Scriptable> SelectDialogue(int p_Index) {
-        Debug.Log("Kena panggil sebelum clear");
         Dialogue_Manager.instance.SetDialogue(databaseDialogue[p_Index].dialogues);
         return databaseDialogue[p_Index].dialogues;
     }

@@ -27,12 +27,15 @@ public class Battle : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartBattle();
+       // StartBattle();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P)) {
+            StartBattle();
+        }
     }
 
     public void StartBattle() {
@@ -94,24 +97,24 @@ public class Battle : MonoBehaviour
             } else if(move.buffType == BuffType.DefenseDebuff) {
                 TargetTrainer().pokemon.defense -= move.value;
                 dialogue = new Dialogue()
-            .Sentences(new string[] { "{pokemonName} use {move}", "Enemy defense decreases" })
-            .Type(DialogueType.TextOnly)
-            .Choices(GetChoices())
-            .UserDialogue("");
+                .Sentences(new string[] { "{pokemonName} use {move}", "Enemy defense decreases" })
+                .Type(DialogueType.TextOnly)
+                .Choices(GetChoices())
+                .UserDialogue("");
             } else if (move.buffType == BuffType.DefenseBuff) {
                 ActiveTrainer().pokemon.defense += move.value;
                 dialogue = new Dialogue()
-            .Sentences(new string[] { "{pokemonName} use {move}", "Enemy defense increases" })
-            .Type(DialogueType.TextOnly)
-            .Choices(GetChoices())
-            .UserDialogue("");
+                .Sentences(new string[] { "{pokemonName} use {move}", "Enemy defense increases" })
+                .Type(DialogueType.TextOnly)
+                .Choices(GetChoices())
+                .UserDialogue("");
             } else if (move.buffType == BuffType.AttackBuff) {
                 ActiveTrainer().pokemon.attack += move.value;
                 dialogue = new Dialogue()
-            .Sentences(new string[] { "{pokemonName} use {move}", "Enemy attack increases" })
-            .Type(DialogueType.TextOnly)
-            .Choices(GetChoices())
-            .UserDialogue("");
+                .Sentences(new string[] { "{pokemonName} use {move}", "Enemy attack increases" })
+                .Type(DialogueType.TextOnly)
+                .Choices(GetChoices())
+                .UserDialogue("");
 
             }
         }
@@ -124,18 +127,18 @@ public class Battle : MonoBehaviour
         if (turn == Turn.Player) {
             turn = Turn.Enemy;
             Dialogue dialogue = new Dialogue()
-          .Sentences(new string[] { "Enemies Turn !" })
-          .Type(DialogueType.TextOnly)
-          .Choices(GetChoices())
-          .UserDialogue("");
+            .Sentences(new string[] { "Enemies Turn !" })
+            .Type(DialogueType.TextOnly)
+            .Choices(GetChoices())
+            .UserDialogue("");
             StartCoroutine(ShowEnemyUI(dialogue));
         }else {
             turn = Turn.Player;
             Dialogue dialogue = new Dialogue()
-          .Sentences(new string[] { "What Will you Do?" })
-          .Type(DialogueType.Choice)
-          .Choices(GetChoices())
-.UserDialogue("");
+            .Sentences(new string[] { "What Will you Do?" })
+            .Type(DialogueType.Choice)
+            .Choices(GetChoices())
+            .UserDialogue("");
             
             StartCoroutine(ShowUI(dialogue));
         }
@@ -143,13 +146,10 @@ public class Battle : MonoBehaviour
     }
 
     public void BattleEnd() {
-        Debug.Log("Battle End");
         onBattleEnd?.Invoke();
     }
 
     public void Check() {
-
-        Debug.Log("Sudah dipangil");
         if (player.pokemon.health <= 0 || enemy.pokemon.health <= 0) {
             BattleEnd();
         } else {
